@@ -1,0 +1,57 @@
+[project]
+name = "manualtrace"
+version = "0.1.0"
+description = "Technical manual extraction and evaluation harness: Docling + Tesseract to Pydantic records and S1000D-style XML with page/bbox provenance."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "docling>=2.60",
+    "pydantic>=2.7",
+    "lxml>=5.2",
+    "pypdf>=4.2",
+    "pypdfium2>=4.30",
+    "pillow>=10.3",
+    "httpx>=0.27",
+    "torch>=2.4",
+    "torchvision>=0.19",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+
+[project.scripts]
+manualtrace = "manualtrace.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.2", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/manualtrace"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["pipeline: needs parsed Docling output under data/parsed (run `manualtrace parse` first)"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

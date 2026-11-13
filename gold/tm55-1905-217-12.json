@@ -1,0 +1,118 @@
+{
+ "doc_id": "tm55-1905-217-12",
+ "annotated_by": "hand annotation from the rendered pages; text transcribed as printed (including the source's own typos)",
+ "pages": [2, 76, 84, 85, 86, 90, 208, 209],
+ "admonitions": [
+  {"id": "a1", "kind": "warning", "page": 2,
+   "text": "DANGEROUS CHEMICALS are used in this equipment. SERIOUS INJURY OR DEATH may result if personnel fail to observe these safety precautions. Avoid contact with the battery electrolyte. If the solution comes in contact with the skin, rinse the area immediately with clear water to avoid skin burns. Be sure all cargo is secure, especially during rough seas."},
+  {"id": "a2", "kind": "warning", "page": 2,
+   "text": "FIRE OR EXPLOSION HAZARD SERIOUS INJURY OR DEATH may result if personnel fail to observe these safety precautions. Hatches must be open before energizing any electrical circuits or starting engines. Do not smoke or use an open flame in the vicinity when servicing batteries as hydrogen gas, an explosive is generated. Use only distilled water to maintain battery electrolyte level. Do not fill fuel tank while engine is running. Provide me'allic contact between the fuel container and fuel tank to prevent a static spark from igniting fuel. Wipe or flush any spillage. Volatile materials will not be brought aboard; electrical circuits will not be energized; fuel tanks will not be topped off; and engines will not he started before C02 fire fighting equipment is available and operative. Observe NO SMTOKING rules when refueling. Do not work on live circuits. Tag circuit and warn other personnel not an energize the circuit. Never use a b)low torch or other similar means for heating fuel or oil lines."},
+  {"id": "a3", "kind": "warning", "page": 2,
+   "text": "ASPHYXIATION DANGER Be sure engine room ventilators are open when operating the engine (s). The engine exhaust gases contain carbon monoxide, which is a colorless, odorless, and poisonous gas."},
+  {"id": "a4", "kind": "caution", "page": 76,
+   "text": "DO NOT CRANK ENGINE FOR MORE THAN 30 SECONDS CONTINUOUSLY WITHOUT ALLOWING A 2-MINUTE COOLING OFF PERIOD. IF ENGINE DOES NOT START AFTER A FEW TRIES, STOP CRANKING AND DETERMINE THE CAUSE. CORRECT OR REPORT CONDITION TO ORGANIZATIONAL MAINTENANCE."},
+  {"id": "a5", "kind": "warning", "page": 84,
+   "text": "Do not actuate the starting aid more than once with the engine stopped. OVER-LOADING THE ENGINE AIR BOX WITH THIS HIGH VOLATILE FLUID COULD RESULT IN A MINOR EXPLOSION."},
+  {"id": "a6", "kind": "caution", "page": 84,
+   "text": "Do not crank the engine more than 30 seconds at a time when using an electric starting motor. Always allow two minute intervals between cranking attempts to allow the starting motor to cool."},
+  {"id": "a7", "kind": "warning", "page": 84,
+   "text": "Never use a blow torch or other similar means for heating fuel or lubricating oil lines."},
+  {"id": "a8", "kind": "warning", "page": 85,
+   "text": "Fuel oil and other similar materials are highly volatile in hot weather and these vapors increase the possibility of an explosion. Be sure all spilled petroleum products are wiped up. Inspect for leaks in fuel lines and fittings. Pump bilges regularly."},
+  {"id": "a9", "kind": "caution", "page": 86,
+   "text": "Do not use a wire brush or scrape the screen when cleaning, thus avoiding the possibility of damaging the wire mesh."},
+  {"id": "a10", "kind": "caution", "page": 90,
+   "text": "DO NOT USE A WIRE BRUSH OR METAL SCRAPER WHEN CLEANING THE STRAINER. DAMAGE TO THE WIRE MESH CAN RESULT."}
+ ],
+ "procedures": [
+  {"id": "p1", "page": 76, "title": ["Engine starting instructions, hull numbers 8540 thru 8560 and 8580 thru 8618", "Engine starting instructions"],
+   "steps": [
+    {"number": "1", "page": 76, "text": "PLACE REVERSE GEAR LEVERS IN NEUTRAL."},
+    {"number": "2", "page": 76, "text": "OPEN THROTTLE CONTROLS APPROXIMATELY 25 PER CENT."},
+    {"number": "3", "page": 76, "text": "START ENGINES ONE AT A TIME BY PUSHING STARTER BUTTON. RELEASE BUTTON PROMPTLY WHEN ENGINE STARTS."},
+    {"number": "4", "page": 76, "text": "ADJUST WATER FLOW THROUGH MUFFLERS AND BILGE PUMP PRIMING BY POSITIONING VALVES,"},
+    {"number": "5", "page": 76, "text": "RUN ENGINES AT PART THROTTLE AND NO-LOAD FOR 5 MINUTES--THEN RETURN THROTTLES TO IDLE POSITION."}
+   ]},
+  {"id": "p2", "page": 84, "title": ["Use the starting aid as follows", "Starting Aid Pressurized Cylinder"],
+   "steps": [
+    {"number": "a", "page": 84, "text": "Pull out knob for one-or two-seconds (below zero hold 3 seconds)."},
+    {"number": "b", "page": 84, "text": "Wait 3 seconds and then push starter button."}
+   ]},
+  {"id": "p3", "page": 84, "title": ["Batteries"],
+   "steps": [
+    {"number": "a", "page": 84, "text": "Keep batteries fully charged to prevent freezing."},
+    {"number": "b", "page": 84, "text": "Check specific gravity and adjust to suit particular conditions (TM 9-6140-200-15)."},
+    {"number": "c", "page": 84, "text": "Check batteries for correct terminal voltage. It may be necessary to add an additional battery to start the engine. Disconnect additional battery, if used, as soon as engine has started."}
+   ]},
+  {"id": "p4", "page": 84, "title": ["Hull and Fittings"],
+   "steps": [
+    {"number": "1", "page": 84, "text": "Keep caps installed on all hose connections, except when filling."},
+    {"number": "2", "page": 84, "text": "Remove ice from ladders and passage ways on main deck."}
+   ]},
+  {"id": "p5", "page": 85, "title": ["Batteries"],
+   "steps": [
+    {"number": "1", "page": 85, "text": "Check electrolyte level often and fill as necessary."},
+    {"number": "2", "page": 85, "text": "Keep terminals free of corrosion."},
+    {"number": "3", "page": 85, "text": "Reduce specific gravity (TM 9-6140200-14)."}
+   ]},
+  {"id": "p6", "page": 85, "title": ["Cooling System"],
+   "steps": [
+    {"number": "1", "page": 85, "text": "Insufficient supply of fresh water in the Keel cooling system. If so, fill expansion tank and check for leakage."},
+    {"number": "2", "page": 85, "text": "Engine coolant thermostat faulty. Remove and inspect; replace if found faulty."},
+    {"number": "3", "page": 85, "text": "Sea water (raw water) inlet clogged at sea chest. Blow out sea chest with compressed air."},
+    {"number": "4", "page": 85, "text": "Engine fresh water jump faulty. Remove and inspect; replace if found faulty."},
+    {"number": "5", "page": 85, "text": "Scale or deposits in raw water side of heat exchanger. If present, clean heat exchanger."}
+   ]},
+  {"id": "p7", "page": 85, "title": ["Lubricating Oil System"],
+   "steps": [
+    {"number": "1", "page": 85, "text": "Check lubricating oil pressure gage often. Pressure will drop slightly as water temperature rises."},
+    {"number": "2", "page": 85, "text": "Refer to L055-1905-217-12/3 for instructions concerning lubrication of engines during operation in hot weather."}
+   ]},
+  {"id": "p8", "page": 86, "title": ["OES Oil"],
+   "steps": [
+    {"number": "1", "page": 86, "text": "The crankcase oil level must be checked frequently, as oil consumption may increase."},
+    {"number": "2", "page": 86, "text": "The oil may require changing more frequently than usual because contamination by dilution and sludge formation will increase is under cold weather operation conditions"},
+    {"number": "3", "page": 86, "text": "Use special hand pump 6164884 to pump oil out of the crankcase."}
+   ]},
+  {"id": "p9", "page": 86, "title": ["Transmission Oil Strainer"],
+   "steps": [
+    {"number": "1", "page": 86, "text": "The oil strainer is mounted in the suction line near the transmission oil pump. The strainer contains a cleanable element."},
+    {"number": "2", "page": 86, "text": "Each time the transmission oil is changed (250 hours), remove the strainer from the suction line and remove the element."},
+    {"number": "3", "page": 86, "text": "Wash the inside and outside of the element in clean fuel oil and blow dry with compressed air."},
+    {"number": "4", "page": 86, "text": "Assemble strainer and install in suction line. Tighten the three bolts to 1317 ft-lb. torque."}
+   ]},
+  {"id": "p10", "page": 90, "title": ["Transmission oil strainer servicing"],
+   "steps": [
+    {"number": "1", "page": 90, "text": "REMOVE THE END CAP BOLTS (3) AND WITH DRAW THE STRAINER ELEMENT."},
+    {"number": "2", "page": 90, "text": "WASH THE INSIDE AND OUTSIDE OF THE STRAINER ELEMENT IN CLEAN FUEL OIL AND DRY WITH AIR OR LINT FREE CLOTH."},
+    {"number": "3", "page": 90, "text": "ASSEMBLE THE STRAINER AND TIGHTEN THE END CAP ATTACHMENT BOLTS. (TORQUE TO 15+ 2 FT. LBS.)"}
+   ]}
+ ],
+ "parts": [
+  {"id": "r1", "page": 208, "smr": "PACZZ", "nsn": "5300-00-599-4823", "description": "WASHER, Non-metallic, Cover", "part_number": "5193704", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r2", "page": 208, "smr": "PACZZ", "nsn": "5330-00-364-2674", "description": "GASKET, Plug", "part_number": "694203", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r3", "page": 208, "smr": "PACZZ", "nsn": "2910-00-287-1912", "description": "ELEMENT, Fuel Filter", "part_number": "MIL-E-20627", "cage": "81349", "unit": "EA", "quantity": "8"},
+  {"id": "r4", "page": 208, "smr": "PACZZ", "nsn": "5330-00-285-3825", "description": "GASKET, Cover Nut", "part_number": "2243465", "cage": "72582", "unit": "EA", "quantity": "8"},
+  {"id": "r5", "page": 208, "smr": "PACZZ", "nsn": "5330-00-627-4085", "description": "GASKET, Filter Shell", "part_number": "5192801", "cage": "72582", "unit": "EA", "quantity": "8"},
+  {"id": "r6", "page": 208, "smr": "PACZZ", "nsn": "2940-00-480-6283", "description": "ELEMENT, Filter", "part_number": ["PF132, 5573014", "5573014", "PF132"], "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r7", "page": 208, "smr": "PACZZ", "nsn": "5330-00-290-7860", "description": "WASHER, Non-Metallic, Shell", "part_number": "5571024", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r8", "page": 208, "smr": "PACZZ", "nsn": "5330-00-604-8094", "description": "PACKING, Preformed, Cover Nut", "part_number": "5187310", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r9", "page": 208, "smr": "PACZZ", "nsn": "2940-00-019-087", "description": "ELEMENT, Filter, Oil", "part_number": "5574978", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r10", "page": 208, "smr": "PACHH", "nsn": "2010-00-540-7689", "description": "PROPELLER, Ship, LH", "unit": "EA", "quantity": "1"},
+  {"id": "r11", "page": 208, "smr": "PACHH", "nsn": "12010-00-540-7690", "description": "PROPELLER, Ship, RH", "unit": "EA", "quantity": "1"},
+  {"id": "r12", "page": 208, "smr": "PACZZ", "nsn": "5330-00-290-7860", "description": "WASHER, Non-Metallic, Shell", "part_number": "5571024", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r13", "page": 208, "smr": "PACZZ", "nsn": "2940-00-841-5964", "description": "GASKET, Oil Filter, Cover Bolt", "part_number": "5574130", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r14", "page": 209, "smr": "PACZZ", "nsn": "5330-00-786-5320", "description": "GASKET, Oil Strainer Cover", "part_number": "5112511", "cage": "72582", "unit": "EA", "quantity": "4"},
+  {"id": "r15", "page": 209, "smr": "PACZZ", "nsn": "2040-00-929-8730", "description": "GASKET Cylinder", "part_number": "10", "cage": "72922", "unit": "EA", "quantity": "4"},
+  {"id": "r16", "page": 209, "smr": "PACZZ", "nsn": "3030-0529-0479", "description": "BELT, V, At Drive", "part_number": "MS39256B51", "cage": "96906", "unit": "EA", "quantity": "2"},
+  {"id": "r17", "page": 209, "smr": "PACZZ", "nsn": "3030-00-529-0482", "description": "BELT, V, Pump Drive (R200)", "part_number": "MS39256B42", "cage": "96906", "unit": "EA", "quantity": "1"},
+  {"id": "r18", "page": 209, "smr": "PACZZ", "nsn": "3030-00-460-2502", "description": "BELT, V, Pump Drive (R&L130)", "part_number": "MS39256B58", "cage": "96906", "unit": "EA", "quantity": "1"},
+  {"id": "r19", "page": 209, "smr": "PACZZ", "nsn": "5920-00-686-9548", "description": "FUSE, Cartridge 10A", "part_number": "FO9A250V1OA", "cage": "81349", "unit": "EA", "quantity": "8"},
+  {"id": "r20", "page": 209, "smr": "PACZZ", "nsn": "5920-00-280-3163", "description": "FUSE, Cartridge 15A", "part_number": "FO7A32V15A", "cage": "81349", "unit": "EA", "quantity": "4"},
+  {"id": "r21", "page": 209, "smr": "PACZZ", "nsn": "5920-00-296-0445", "description": "FUSE, Cartridge 5A", "part_number": "F06C500V5A", "cage": "81349", "unit": "EA", "quantity": "2"},
+  {"id": "r22", "page": 209, "nsn": "2040-00377-8599", "description": "ANCHOR, Marine, 75 lb", "part_number": ["A-1 570718", "570718"], "cage": "81349", "unit": "EA", "quantity": "1"},
+  {"id": "r23", "page": 209, "nsn": "6140-00-184-3415", "description": "BATTERY, Storage, Engine Starting, 6V", "part_number": ["W-B-131, Type 7D", "W-B-131"], "cage": "81348", "unit": "EA", "quantity": "4"},
+  {"id": "r24", "page": 209, "nsn": "6350-00-256-9061", "description": ["I BELL, Ship, 20 lb", "BELL, Ship, 20 lb"], "part_number": "B-674", "cage": "81349", "unit": "EA", "quantity": "1"},
+  {"id": "r25", "page": 209, "nsn": "4010-00-555-9510", "description": "CHAIN ASSEMBLY, Anchor, 3/8 in.", "part_number": "C-2683", "cage": "81349", "unit": "EA", "quantity": "1"}
+ ]
+}

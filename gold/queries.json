@@ -1,0 +1,30 @@
+{
+ "description": "Retrieval check: each query lists the gold records (doc_id:record_id; a procedure id matches any of its steps) that answer it. A query is a hit@k if any of the top-k retrieved extracted records aligns with one of them.",
+ "queries": [
+  {"q": "how long can I crank the engine before letting the starter cool", "relevant": ["tm55-1905-217-12:a4", "tm55-1905-217-12:a6"]},
+  {"q": "battery electrolyte skin contact", "relevant": ["tm55-1905-217-12:a1"]},
+  {"q": "carbon monoxide exhaust ventilation hazard", "relevant": ["tm55-1905-217-12:a3"]},
+  {"q": "static spark when refueling the fuel tank", "relevant": ["tm55-1905-217-12:a2"]},
+  {"q": "starting aid fluid explosion in the air box", "relevant": ["tm55-1905-217-12:a5"]},
+  {"q": "heating frozen fuel or oil lines with a blow torch", "relevant": ["tm55-1905-217-12:a7", "tm55-1905-217-12:a2"]},
+  {"q": "steps to start the engines from the pilot house", "relevant": ["tm55-1905-217-12:p1"]},
+  {"q": "clean the transmission oil strainer element", "relevant": ["tm55-1905-217-12:p9", "tm55-1905-217-12:p10", "tm55-1905-217-12:a9", "tm55-1905-217-12:a10"]},
+  {"q": "engine overheating above 185 F check thermostat and sea chest", "relevant": ["tm55-1905-217-12:p6"]},
+  {"q": "remove ice from ladders and passageways", "relevant": ["tm55-1905-217-12:p4"]},
+  {"q": "stock number for the oil strainer cover gasket", "relevant": ["tm55-1905-217-12:r14"]},
+  {"q": "spare V belt for the bilge pump drive", "relevant": ["tm55-1905-217-12:r17", "tm55-1905-217-12:r18"]},
+  {"q": "15 amp cartridge fuse for the electrical control panel", "relevant": ["tm55-1905-217-12:r20"]},
+  {"q": "left hand ship propeller", "relevant": ["tm55-1905-217-12:r10"]},
+  {"q": "fuel filter element secondary", "relevant": ["tm55-1905-217-12:r3"]},
+  {"q": "welding the tubing to the junction box before the cable is installed", "relevant": ["navships-900524-ib:a3", "navships-900524-ib:p1"]},
+  {"q": "shear valve handwheel clip removal", "relevant": ["navships-900524-ib:a4"]},
+  {"q": "bolts touching the spring bridge", "relevant": ["navships-900524-ib:a5"]},
+  {"q": "solder the braided shield to the cable-braid terminal", "relevant": ["navships-900524-ib:p2"]},
+  {"q": "ohmmeter test of the cable run for a short circuit", "relevant": ["navships-900524-ib:p3"]},
+  {"q": "T wrench for the cap screws", "relevant": ["navships-900524-ib:s11"]},
+  {"q": "neoprene insulator gasket drawing number", "relevant": ["navships-900524-ib:s14", "navships-900524-ib:m4"]},
+  {"q": "lockwasher for 3/8 inch cap screws", "relevant": ["navships-900524-ib:s8"]},
+  {"q": "who supplies the coaxial transmission line and tubing", "relevant": ["navships-900524-ib:a1"]},
+  {"q": "do not scrape paint around bolt holes zinc finish", "relevant": ["navships-900524-ib:a6"]}
+ ]
+}
