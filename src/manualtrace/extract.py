@@ -32,17 +32,28 @@ from .schemas import (
 # ---------------------------------------------------------------- payload
 
 
+OCR_DASH = re.compile(r"(?<=[A-Za-z0-9])\s?(?:=+-?|-?=+|~)\s?(?=[A-Za-z0-9])")
+
+
+def ocr_fix(text: str) -> str:
+    """Typewriter scans OCR hyphens as '=' or '~' ('H=105', 'NT=-539', 'H~141')."""
+    return OCR_DASH.sub("-", text)
+
+
 def make_payload(doc: ParsedDocument) -> dict:
+    fix = ocr_fix if doc.kind == "scanned" else (lambda s: s)
     return {
         "doc_id": doc.doc_id,
         "kind": doc.kind,
         "blocks": [
-            {"id": b.id, "page": b.page, "label": b.label, "text": b.text,
+            {"id": b.id, "page": b.page, "label": b.label, "text": fix(b.text),
              "x": round(b.bbox.left, 1), "y": round(b.bbox.top, 1),
              "w": round(b.bbox.right - b.bbox.left, 1)}
             for b in doc.blocks
         ],
-        "tables": [{"id": t.id, "page": t.page, "rows": t.grid()} for t in doc.tables],
+        "tables": [{"id": t.id, "page": t.page,
+                    "rows": [[fix(c) for c in row] for row in t.grid()]}
+                   for t in doc.tables],
     }
 
 
@@ -119,6 +130,7 @@ def is_heading_item(style: str, body: str, next_text: str = "") -> bool:
     """'1. GENERAL.' / 'b. Engines.' / 'c. Steering System. Test ...' / '(2) Batteries.'
     followed by '(a) ...' are paragraph headings, not procedure steps."""
     first = re.split(r"(?<=\.)\s", body, maxsplit=1)[0].rstrip(".")
+    first = re.sub(r"\s*\([^)]*\)", "", first)  # "(fig 3-1 or 3-2)" is not part of a title
     words = first.split()
     if style == "1.":
         letters = re.sub(r"[^A-Za-z]", "", body)
@@ -282,7 +294,10 @@ def label_procedures(blocks: list[_B]) -> list[dict]:
                 continue
             if not run:
                 continue
+            last_step = blocks[run[-1]["_idx"]]
             if heads[idx] and not ADM_HEAD.match(text):
+                if b.page == last_step.page and b.y < last_step.y:
+                    continue  # running header placed late in reading order
                 close()
                 continue
             if mk or _is_noise(b) or b.id in adm_ids or ADM_HEAD.match(text) \
@@ -323,13 +338,16 @@ def _procedure_title(blocks: list[_B], heads: list[bool], proc: dict) -> str:
     """Caption right after the steps, else a lead-in sentence ending in ':', else the
     nearest preceding heading."""
     last = proc["steps"][-1]["_idx"]
-    for k in range(last + 1, min(last + 4, len(blocks))):
-        if blocks[k].label == "caption" and blocks[k].page == blocks[last].page:
-            return _clean_title(blocks[k].text)
+    nxt = next((blocks[k] for k in range(last + 1, len(blocks)) if not _is_noise(blocks[k])),
+               None)
+    if nxt is not None and nxt.page == blocks[last].page and (
+            nxt.label == "caption" or re.match(r"(figure|fig\.)\s*\d", nxt.text, re.I)):
+        return _clean_title(nxt.text)
     first = proc["start"]
-    prev = next((blocks[k] for k in range(first - 1, -1, -1) if not _is_noise(blocks[k])), None)
+    prev_idx = next((k for k in range(first - 1, -1, -1) if not _is_noise(blocks[k])), None)
+    prev = blocks[prev_idx] if prev_idx is not None else None
     if prev is not None and prev.text.rstrip().endswith(":"):
-        return _clean_title(prev.text, last_sentence=True)
+        return _clean_title(prev.text, last_sentence=not heads[prev_idx])
     for k in range(first - 1, max(-1, first - 10), -1):
         if heads[k] and blocks[k].label != "caption":
             cleaned = _clean_title(blocks[k].text)
@@ -343,7 +361,7 @@ def _procedure_title(blocks: list[_B], heads: list[bool], proc: dict) -> str:
 COLS = [
     ("smr", re.compile(r"\bsmr\b", re.I)),
     ("nsn", re.compile(r"national stock|\bnsn\b|stock number", re.I)),
-    ("item", re.compile(r"symbol|illus|item no|^item$", re.I)),
+    ("item", re.compile(r"s\wmbol|illus|item no|^item$", re.I)),
     ("quantity", re.compile(r"\bqty\b|quan", re.I)),
     ("unit", re.compile(r"\bu/?i\b|unit of issue", re.I)),
     ("part_number", re.compile(r"drawing|part n", re.I)),
@@ -392,6 +410,23 @@ def _split_description(desc: str) -> dict:
     return out
 
 
+DESIGNATOR = re.compile(r"\b(?:[A-Z0]-\d{3}|thru|and)\b")
+CODE = re.compile(r"\b[A-Z0-9]*\d[A-Z0-9]*(?:-[A-Z0-9]+)*\b|\b[A-Z]+(?:-[A-Z0-9]+)+\b")
+
+
+def _clean_item(s: str) -> str | None:
+    toks = DESIGNATOR.findall(s)
+    while toks and toks[0] in ("thru", "and"):
+        toks.pop(0)
+    return " ".join(toks) or None
+
+
+def _clean_code(s: str) -> str | None:
+    """First code-like token of an OCR'd drawing/part-number cell ('. PM-1306' -> PM-1306)."""
+    m = CODE.search(s)
+    return m.group(0) if m and len(m.group(0)) >= 3 else None
+
+
 LEADING_CAGE = re.compile(r"^(\(\d{5}\))\s*")
 ITEM_NAME = re.compile(r"(?<![(\w])[A-Z]{3,}(?:[ -][A-Z]{3,})*(?=,|\s[A-Z][a-z]|\s[A-Z]+\b)")
 
@@ -407,7 +442,7 @@ def label_parts(payload: dict) -> list[dict]:
         roles: dict[int, str] = {}
         for h in range(min(4, len(rows))):
             r = _column_roles(rows[: h + 1])
-            if "description" in r.values() and len(r) >= 2:
+            if "description" in r.values() and len(r) >= 2 and len(r) > len(roles):
                 roles, header_end = r, h + 1
                 if len(r) >= 3:
                     break
@@ -429,9 +464,14 @@ def label_parts(payload: dict) -> list[dict]:
                 prev["description"] += " " + m.group(1)
                 rec["description"] = rec["description"][m.end():].strip()
         for rec in raw:
-            desc = rec.get("description")
+            desc = re.sub(r"^[^A-Za-z0-9\"(]+", "", rec.get("description", ""))
             if not desc:
                 continue
+            rec["description"] = desc
+            if rec.get("item"):
+                rec["item"] = _clean_item(rec["item"])
+            if "part_number" in roles.values() and rec.get("part_number"):
+                rec["part_number"] = _clean_code(rec["part_number"])
             # Drop a group heading merged in front of the item name:
             # "Fuel Filter Secondary ELEMENT, Fuel Filter" -> "ELEMENT, Fuel Filter"
             m = ITEM_NAME.search(desc)
@@ -446,8 +486,8 @@ def label_parts(payload: dict) -> list[dict]:
             if not (rec.get("nsn") or rec.get("part_number") or rec.get("item")):
                 continue  # group headings like "Fuel Filter Secondary"
             if rec.get("quantity"):
-                q = re.search(r"\d+", rec["quantity"])
-                rec["quantity"] = q.group(0) if q else None
+                nums = re.findall(r"\d+", rec["quantity"])
+                rec["quantity"] = nums[0] if len(nums) == 1 else None
             out.append(rec)
     return out
 

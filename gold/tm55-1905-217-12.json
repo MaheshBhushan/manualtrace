@@ -86,6 +86,16 @@
     {"number": "1", "page": 90, "text": "REMOVE THE END CAP BOLTS (3) AND WITH DRAW THE STRAINER ELEMENT."},
     {"number": "2", "page": 90, "text": "WASH THE INSIDE AND OUTSIDE OF THE STRAINER ELEMENT IN CLEAN FUEL OIL AND DRY WITH AIR OR LINT FREE CLOTH."},
     {"number": "3", "page": 90, "text": "ASSEMBLE THE STRAINER AND TIGHTEN THE END CAP ATTACHMENT BOLTS. (TORQUE TO 15+ 2 FT. LBS.)"}
+   ]},
+  {"id": "p11", "page": 85, "title": ["Foul Weather Operation"],
+   "steps": [
+    {"number": "a", "page": 85, "text": "Check to see that all gear and equipment is properly stowed and secured."},
+    {"number": "b", "page": 85, "text": "Should the engines be operated at high speed in rough water the engines will surge when the propellers leave the water, causing excessive vibration. The governor may be overworked under these conditions, and it will be necessary for the protection of the engines and safety of the vessel to reduce the speed of the engines until a safe operating speed is attained as determined by the roughness of the sea."}
+   ]},
+  {"id": "p12", "page": 86, "title": ["Engine Oil Filter Maintenance"],
+   "steps": [
+    {"number": "1", "page": 86, "text": "This is a full-flow filter with a replaceable element. A bypass valve is located in the base to insure engine lubrication if the filter is plugged."},
+    {"number": "2", "page": 86, "text": "Change the element every time the engine oil is changed (every 100 hours)."}
    ]}
  ],
  "parts": [
