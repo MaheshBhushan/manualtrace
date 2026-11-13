@@ -87,6 +87,8 @@ def build_prompt(doc: ParsedDocument) -> tuple[str, str]:
 ADM_HEAD = re.compile(r"^(warning|caution|note)\s*[:.]?$", re.I)
 ADM_INLINE = re.compile(r"\b(WARNING|CAUTION|NOTE)\s*:\s*", re.S)
 STEP_INLINE = re.compile(r"\bSTEP\s+(\d+)\s*\.\s*")
+ADM_LEADING = re.compile(r"^(WARNING|CAUTION|NOTE)\s+[^:\s]")
+ADM_SPLIT = re.compile(r"\b(WARNING|CAUTION|NOTE)\b(?!\s*:)")
 
 # (style, regex); the group captures the step number/letter.
 STEP_STYLES = [
@@ -94,7 +96,7 @@ STEP_STYLES = [
     ("(1)", re.compile(r"^\((\d+)\)\s*(.*)$", re.S)),
     ("(a)", re.compile(r"^\(([a-z])\)\s*(.*)$", re.S)),
     ("(A)", re.compile(r"^\(([A-Z])\)\s*(.*)$", re.S)),
-    ("1.", re.compile(r"^(\d+)\s*\.\s+(.*)$", re.S)),
+    ("1.", re.compile(r"^(\d+)\s*[.,]{1,2}\s+(.*)$", re.S)),  # tolerates OCR "4," / "5.,"
     ("a.", re.compile(r"^([a-z])\s*\.\s+(.*)$", re.S)),
 ]
 NOISE = re.compile(r"^(restricted|tm [\d\- ]+|change \d+.*|[\d]+-[\d]+|me [\d\-/ ()]+)$", re.I)
@@ -113,17 +115,21 @@ def step_marker(text: str) -> tuple[str, str, str] | None:
     return None
 
 
-def is_heading_item(style: str, body: str) -> bool:
-    """'1. GENERAL.' / 'b. Engines.' / 'c. Steering System. Test ...' are headings."""
+def is_heading_item(style: str, body: str, next_text: str = "") -> bool:
+    """'1. GENERAL.' / 'b. Engines.' / 'c. Steering System. Test ...' / '(2) Batteries.'
+    followed by '(a) ...' are paragraph headings, not procedure steps."""
     first = re.split(r"(?<=\.)\s", body, maxsplit=1)[0].rstrip(".")
     words = first.split()
-    if style in ("1.", "STEP") and body.upper() == body and style != "STEP":
-        return len(words) <= 12
+    if style == "1.":
+        letters = re.sub(r"[^A-Za-z]", "", body)
+        return bool(letters) and letters.upper() == letters and len(words) <= 12
     if style == "a.":
         return 0 < len(words) <= 6 and all(w[0].isupper() or not w[0].isalpha() or
                                            w in {"and", "or", "of", "the", "to"} for w in words)
     if style == "(1)":
-        return 0 < len(words) <= 4 and body.rstrip().endswith(".") and len(body) < 40
+        nxt = step_marker(next_text.strip())
+        return (0 < len(words) <= 4 and body.rstrip().endswith(".") and len(body) < 40
+                and nxt is not None and nxt[0] == "(a)")
     return False
 
 
@@ -181,6 +187,15 @@ def label_admonitions(blocks: list[_B]) -> list[dict]:
                 out.append({"kind": kind, "block_ids": ids, "text": " ".join(parts)})
             i = j
             continue
+        # several admonitions merged into one block: "WARNING <body> WARNING <body> ..."
+        if ADM_LEADING.match(b.text):
+            pieces = ADM_SPLIT.split(b.text)
+            for kind, body in zip(pieces[1::2], pieces[2::2], strict=True):
+                if body.strip():
+                    out.append({"kind": kind.lower(), "block_ids": [b.id],
+                                "text": body.strip()})
+            i += 1
+            continue
         # inline "CAUTION: ..." inside a block (e.g. figure step lists)
         for m in ADM_INLINE.finditer(b.text):
             rest = b.text[m.end():]
@@ -217,100 +232,110 @@ def _split_inline_steps(blocks: list[_B]) -> list[_B]:
     return out
 
 
+def _heading_flags(blocks: list[_B]) -> list[bool]:
+    flags = []
+    for i, b in enumerate(blocks):
+        text = b.text.strip()
+        nxt = next((n.text for n in blocks[i + 1:] if not _is_noise(n)), "")
+        mk = step_marker(text)
+        if mk:
+            flags.append(is_heading_item(mk[0], mk[2], nxt))
+        else:
+            flags.append((b.label in {"section_header", "title"} and not ADM_HEAD.match(text)
+                          and not _is_noise(b)) or bool(PARA_NUM.match(text)))
+    return flags
+
+
 def label_procedures(blocks: list[_B]) -> list[dict]:
     blocks = _split_inline_steps(blocks)
+    heads = _heading_flags(blocks)
     adm_ids = set()
     for a in label_admonitions(blocks):
-        if not (len(a["block_ids"]) == 1 and ADM_INLINE.search(a["text"] or "")):
-            adm_ids.update(a["block_ids"])
+        adm_ids.update(a["block_ids"])
     procedures = []
-    styles = {s for s, _ in STEP_STYLES}
-    for style in styles:
+    for style, _rx in STEP_STYLES:
         run: list[dict] = []
-        last_idx = None
 
-        def close(end_idx: int):
+        def close():
             nonlocal run
             if len(run) >= 2:
-                procedures.append({"style": style, "steps": run, "start": run[0]["_idx"],
-                                   "end": end_idx})
+                procedures.append({"style": style, "steps": run, "start": run[0]["_idx"]})
             run = []
+
+        def next_marker(idx: int):
+            for n in blocks[idx + 1:]:
+                if not _is_noise(n):
+                    return step_marker(n.text.strip())
+            return None
 
         for idx, b in enumerate(blocks):
             text = b.text.strip()
-            mk = step_marker(text)
-            heading = b.label in {"section_header", "title"} or PARA_NUM.match(text)
-            if mk and is_heading_item(mk[0], mk[2]):
-                heading, mk = True, None
+            mk = None if heads[idx] else step_marker(text)
             if mk and mk[0] == style:
                 n = _ordinal(style, mk[1])
                 expected = _ordinal(style, run[-1]["number"]) + 1 if run else 1
-                if n == expected:
+                if n != expected:
+                    close()
+                if n == expected or n == 1:
                     run.append({"number": mk[1], "block_ids": [b.id], "text": mk[2],
                                 "_idx": idx})
-                    last_idx = idx
-                    continue
-                close(idx)
-                if n == 1:
-                    run.append({"number": mk[1], "block_ids": [b.id], "text": mk[2],
-                                "_idx": idx})
-                    last_idx = idx
                 continue
             if not run:
                 continue
-            if heading and not (b.label == "section_header" and mk):
-                close(idx)
+            if heads[idx] and not ADM_HEAD.match(text):
+                close()
                 continue
             if mk or _is_noise(b) or b.id in adm_ids or ADM_HEAD.match(text) \
                     or b.label in {"caption", "table"} or len(text.split()) <= 3:
                 continue  # transparent: other step styles, page furniture, figure labels
             prev = run[-1]
-            if not _ends_sentence(prev["text"]) or text[:1].islower():
+            nm = next_marker(idx)
+            sandwiched = (nm is not None and nm[0] == style and len(text.split()) <= 15
+                          and _ordinal(style, nm[1]) == _ordinal(style, prev["number"]) + 1)
+            if not _ends_sentence(prev["text"]) or text[:1].islower() or sandwiched:
                 prev["text"] += " " + text
                 prev["block_ids"].append(b.id)
-                last_idx = idx
                 continue
-            close(idx)
-        close(len(blocks) if last_idx is None else last_idx + 1)
+            close()
+        close()
 
     out = []
     for proc in sorted(procedures, key=lambda p: p["start"]):
-        title = _procedure_title(blocks, proc)
+        title = _procedure_title(blocks, heads, proc)
         out.append({"title": title, "steps": [{k: v for k, v in s.items() if k != "_idx"}
                                               for s in proc["steps"]]})
     return out
 
 
-def _clean_title(text: str) -> str:
+def _clean_title(text: str, last_sentence: bool = False) -> str:
     mk = step_marker(text)
     if mk:
         text = mk[2]
     text = re.sub(r"^(figure|fig\.)\s*[\d\-.]+\s*", "", text, flags=re.I)
     text = PARA_NUM.sub("", text)
-    text = re.split(r"(?<=[a-z0-9)])\.\s", text, maxsplit=1)[0]
+    text = re.sub(r"\s*\((fig|figure)\b[^)]*\)", "", text, flags=re.I)
+    sentences = re.split(r"(?<=[a-z0-9)])[.:]\s", text)
+    text = sentences[-1] if last_sentence else sentences[0]
     return text.strip().rstrip(":.").strip()
 
 
-def _procedure_title(blocks: list[_B], proc: dict) -> str:
+def _procedure_title(blocks: list[_B], heads: list[bool], proc: dict) -> str:
+    """Caption right after the steps, else a lead-in sentence ending in ':', else the
+    nearest preceding heading."""
     last = proc["steps"][-1]["_idx"]
     for k in range(last + 1, min(last + 4, len(blocks))):
         if blocks[k].label == "caption" and blocks[k].page == blocks[last].page:
             return _clean_title(blocks[k].text)
     first = proc["start"]
-    for k in range(first - 1, max(-1, first - 8), -1):
-        b = blocks[k]
-        t = b.text.strip()
-        if _is_noise(b) or ADM_HEAD.match(t) or len(t.split()) <= 1:
-            continue
-        mk = step_marker(t)
-        if mk and mk[0] == proc["style"]:
-            continue
-        if b.label in {"caption", "picture"}:
-            continue
-        cleaned = _clean_title(t)
-        if cleaned:
-            return cleaned
-    return "Procedure"
+    prev = next((blocks[k] for k in range(first - 1, -1, -1) if not _is_noise(blocks[k])), None)
+    if prev is not None and prev.text.rstrip().endswith(":"):
+        return _clean_title(prev.text, last_sentence=True)
+    for k in range(first - 1, max(-1, first - 10), -1):
+        if heads[k] and blocks[k].label != "caption":
+            cleaned = _clean_title(blocks[k].text)
+            if cleaned:
+                return cleaned
+    return _clean_title(prev.text) if prev is not None else "Procedure"
 
 
 # ---- parts tables
@@ -367,6 +392,10 @@ def _split_description(desc: str) -> dict:
     return out
 
 
+LEADING_CAGE = re.compile(r"^(\(\d{5}\))\s*")
+ITEM_NAME = re.compile(r"(?<![(\w])[A-Z]{3,}(?:[ -][A-Z]{3,})*(?=,|\s[A-Z][a-z]|\s[A-Z]+\b)")
+
+
 def label_parts(payload: dict) -> list[dict]:
     out = []
     for t in payload["tables"]:
@@ -384,6 +413,7 @@ def label_parts(payload: dict) -> list[dict]:
                     break
         if not roles:
             continue
+        raw: list[dict] = []
         for ri in range(header_end, len(rows)):
             row = rows[ri]
             rec: dict = {"table_id": t["id"], "row": ri}
@@ -391,9 +421,22 @@ def label_parts(payload: dict) -> list[dict]:
                 v = " ".join(row[c].split()) if c < len(row) else ""
                 if v and v not in ("-", "—"):
                     rec[role] = v
+            raw.append(rec)
+        # Table structure sometimes shifts a wrapped "(CAGE)" line into the next row.
+        for prev, rec in zip(raw, raw[1:], strict=False):
+            m = LEADING_CAGE.match(rec.get("description", ""))
+            if m and prev.get("description") and not CAGE.search(prev["description"]):
+                prev["description"] += " " + m.group(1)
+                rec["description"] = rec["description"][m.end():].strip()
+        for rec in raw:
             desc = rec.get("description")
             if not desc:
                 continue
+            # Drop a group heading merged in front of the item name:
+            # "Fuel Filter Secondary ELEMENT, Fuel Filter" -> "ELEMENT, Fuel Filter"
+            m = ITEM_NAME.search(desc)
+            if m and m.start() > 0 and re.search(r"[a-z]", desc[: m.start()]):
+                desc = rec["description"] = desc[m.start():]
             if "cage" not in rec:
                 rec.update({k: v for k, v in _split_description(desc).items()
                             if k not in rec or k == "description"})

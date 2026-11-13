@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MANUALTRACE_THREADS: "4"
+      MANUALTRACE_REQUIRE_PIPELINE: "1"
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tesseract
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies (CPU-only torch)
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Unit tests
+        run: uv run pytest -m "not pipeline" -q
+
+      # Docling layout + TableFormer weights (Hugging Face cache) and the source PDFs are
+      # cached so repeat runs skip the downloads.
+      - name: Cache Docling models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: docling-models-${{ hashFiles('uv.lock') }}
+
+      - name: Cache source manuals
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: manuals-${{ hashFiles('src/manualtrace/sources.py') }}
+
+      - name: Fetch manuals
+        run: uv run manualtrace fetch
+
+      - name: Parse with Docling (+ Tesseract for the scan)
+        run: uv run manualtrace parse
+
+      - name: Extract, export S1000D XML, evaluate
+        run: |
+          uv run manualtrace extract --extractor rules
+          uv run manualtrace extract --extractor llm --provider offline
+          uv run manualtrace export --extractor rules
+          uv run manualtrace evaluate --extractor rules
+
+      - name: Regression thresholds
+        run: uv run pytest -m pipeline -v
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manualtrace-output
+          path: |
+            out/
+            data/parsed/
