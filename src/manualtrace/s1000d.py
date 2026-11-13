@@ -214,7 +214,7 @@ def build_modules(result: ExtractionResult, source: Source,
                   issue_date: dt.date | None = None) -> dict[str, etree._Element]:
     issue_date = issue_date or dt.date.today()
     out = {}
-    for kind, builder in BUILDERS.items():
+    for builder in BUILDERS.values():
         root, code = builder(source, result, issue_date)
         out[dm_filename(code)] = root
     return out

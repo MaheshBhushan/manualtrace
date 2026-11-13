@@ -68,13 +68,13 @@ class AnthropicProvider:
         self.model = model or os.environ.get("MANUALTRACE_ANTHROPIC_MODEL", "claude-sonnet-4-5")
 
     def complete_json(self, system: str, user: str) -> dict:
-        msg = self.client.messages.create(
+        with self.client.messages.stream(
             model=self.model,
-            max_tokens=16000,
-            temperature=0,
+            max_tokens=32000,
             system=system,
             messages=[{"role": "user", "content": user}],
-        )
+        ) as stream:
+            msg = stream.get_final_message()
         text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
         return parse_json_reply(text)
 

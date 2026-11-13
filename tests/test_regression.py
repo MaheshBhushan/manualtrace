@@ -30,19 +30,21 @@ pytestmark = pytest.mark.pipeline
 DATA = Path(os.environ.get("MANUALTRACE_DATA", "data"))
 DOCS = list(SOURCES)
 
-# per document: (micro precision, micro recall)
+# per document: (micro precision, micro recall). Measured locally: digital 0.978 / 0.996,
+# scanned 0.921 / 0.886. The scan gets a wider margin because OCR output shifts with the
+# Tesseract version (CI uses Ubuntu's package).
 FIELD_THRESHOLDS = {
-    "tm55-1905-217-12": (0.80, 0.80),
-    "navships-900524-ib": (0.60, 0.60),
+    "tm55-1905-217-12": (0.95, 0.95),
+    "navships-900524-ib": (0.80, 0.75),
 }
 RECORD_RECALL_MIN = {
-    "tm55-1905-217-12": {"admonition": 0.8, "step": 0.8, "part": 0.8},
-    "navships-900524-ib": {"admonition": 0.6, "step": 0.6, "part": 0.5},
+    "tm55-1905-217-12": {"admonition": 0.95, "step": 0.95, "part": 0.95},
+    "navships-900524-ib": {"admonition": 0.8, "step": 0.8, "part": 0.8},
 }
-RETRIEVAL_HIT3_MIN = 0.6
-RETRIEVAL_MRR_MIN = 0.5
+RETRIEVAL_HIT3_MIN = 0.88
+RETRIEVAL_MRR_MIN = 0.80
 PAGE_ACCURACY_MIN = 0.95
-GROUNDED_MIN = {"tm55-1905-217-12": 0.9, "navships-900524-ib": 0.7}
+GROUNDED_MIN = {"tm55-1905-217-12": 0.95, "navships-900524-ib": 0.85}
 
 
 def _parsed(doc_id: str) -> ParsedDocument:

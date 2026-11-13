@@ -268,7 +268,7 @@ def label_procedures(blocks: list[_B]) -> list[dict]:
     for style, _rx in STEP_STYLES:
         run: list[dict] = []
 
-        def close():
+        def close(style=style):
             nonlocal run
             if len(run) >= 2:
                 procedures.append({"style": style, "steps": run, "start": run[0]["_idx"]})
@@ -388,9 +388,8 @@ def _column_roles(header_rows: list[list[str]]) -> dict[int, str]:
 def _split_description(desc: str) -> dict:
     """'GASKET, Plug 694203 (72582)' -> description, part_number, cage."""
     out: dict = {"description": desc}
-    m = None
-    for m in CAGE.finditer(desc):
-        pass
+    matches = list(CAGE.finditer(desc))
+    m = matches[-1] if matches else None
     if not m:
         return out
     before, after = desc[: m.start()].strip(), desc[m.end():].strip()
