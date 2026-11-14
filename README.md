@@ -126,6 +126,12 @@ Retrieval over 25 queries:
 The `llm` extractor with the `offline` provider gives the same numbers as `rules`, as
 designed; `tests/test_regression.py` checks that both paths produce identical records.
 
+The same pipeline in CI (GitHub Actions run 43523403813, Ubuntu's Tesseract package) gave
+identical digital-document numbers. For the scan it gave micro P 0.930 / R 0.901 /
+F1 0.915, and for retrieval hit@1 0.920 / hit@3 0.960 / MRR 0.950. The scan numbers
+differ from the local run because OCR output changes with the Tesseract version. The run
+log has the full report.
+
 Parse time (`data/parsed/timings.json`, 4 CPU threads, run on a heavily shared machine, so
 treat these as rough): 265 s for the 12 digital pages and 202 s for the 15 scanned pages.
 
